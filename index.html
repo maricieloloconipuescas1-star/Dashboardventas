@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Ventas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2em;
+            font-weight: bold;
+            font-style: italic;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a202c;
+            font-size: 1.1em;
+        }
+
+        .metric-card {
+            grid-column: span 3;
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #4a5568;
+            font-size: 0.95em;
+        }
+
+        .large-card {
+            grid-column: span 6;
+        }
+
+        .full-card {
+            grid-column: span 12;
+        }
+
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bar-label {
+            min-width: 80px;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+
+        .bar-container {
+            flex: 1;
+            background: #e2e8f0;
+            border-radius: 8px;
+            height: 28px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a0c4a9 0%, #7da88a 100%);
+            border-radius: 8px;
+            transition: width 1s ease;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        @media (max-width: 1024px) {
+            .metric-card, .large-card {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                font-size: 1.5em;
+            }
+
+            .metric-card, .large-card, .full-card {
+                grid-column: span 12;
+            }
+
+            .metric-value {
+                font-size: 2em;
+            }
+
+            .dashboard {
+                gap: 15px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                font-size: 1.2em;
+                margin-bottom: 20px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .bar-label {
+                min-width: 60px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">EJEMPLO DE DASHBOARD-VENTAS</div>
+    
+    <div class="dashboard">
+        <!-- Métricas principales -->
+        <div class="card metric-card">
+            <div class="metric-value">26.42 mill.</div>
+            <div class="metric-label">Suma de Ventas</div>
+        </div>
+
+        <div class="card metric-card">
+            <div class="metric-value">3.88 mill.</div>
+            <div class="metric-label">Suma de Ganancia</div>
+        </div>
+
+        <!-- Suma de Ventas por País -->
+        <div class="card large-card">
+            <div class="card-title">Suma de Ventas por País</div>
+            <div class="bar-chart">
+                <div class="bar-item">
+                    <div class="bar-label">Germany</div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: 90%"></div>
+                    </div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label">Canada</div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: 75%"></div>
+                    </div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label">France</div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: 70%"></div>
+                    </div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label">United Sta...</div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: 65%"></div>
+                    </div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label">Mexico</div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: 55%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suma de Ganancia por Segmento -->
+        <div class="card large-card">
+            <div class="card-title">Suma de Ganancia por Segmento</div>
+            <canvas id="profitChart"></canvas>
+        </div>
+
+        <!-- Suma de Ventas por Producto -->
+        <div class="card large-card">
+            <div class="card-title">Suma de Ventas por Producto</div>
+            <canvas id="productChart"></canvas>
+        </div>
+
+        <!-- Ventas y Número de mes por Nombre del mes -->
+        <div class="card large-card">
+            <div class="card-title">Suma de Ventas y Suma de Número de mes por Nombre del mes</div>
+            <canvas id="monthlyChart"></canvas>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #90a8b0"></div>
+                    <span>Suma de Ventas</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #70d070"></div>
+                    <span>Suma de Número de mes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros de Segmento -->
+        <div class="card" style="grid-column: span 3;">
+            <div class="card-title">Filtros por Año y Segmento</div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #333"></div>
+                    <span>2013</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #333"></div>
+                    <span>Channel Partn...</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #333"></div>
+                    <span>Enterprise</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #333"></div>
+                    <span>Government</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #333"></div>
+                    <span>Midmarket</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #333"></div>
+                    <span>Small Business</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #666"></div>
+                    <span>2014</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gráfico de Ganancia por Segmento
+        const profitCtx = document.getElementById('profitChart').getContext('2d');
+        new Chart(profitCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Government', 'Small Business', 'Channel P...', 'Midmarket', 'Enterprise'],
+                datasets: [{
+                    data: [2.5, 1.2, 0.8, 0.6, 0.4],
+                    backgroundColor: ['#a8d5a8', '#a8d5a8', '#a8d5a8', '#a8d5a8', '#a8d5a8'],
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { display: false } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Gráfico de Ventas por Producto (Pie)
+        const productCtx = document.getElementById('productChart').getContext('2d');
+        new Chart(productCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Velo 6.2 mill.', 'Paseo 5.91 mill.', 'VTT 5.4 mill.', 'Montana 3.98 mill.', 'Amarilla 3.52 mill.'],
+                datasets: [{
+                    data: [6.2, 5.91, 5.4, 3.98, 3.52],
+                    backgroundColor: ['#f4e76e', '#7cb87c', '#2d6e4e', '#5a8f6a', '#a8d5a8']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        // Gráfico de Ventas Mensuales
+        const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+        new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: ['October', 'November', 'December', 'September'],
+                datasets: [{
+                    label: 'Suma de Ventas',
+                    data: [10, 5, 5.5, 5.2],
+                    borderColor: '#90a8b0',
+                    backgroundColor: 'rgba(144, 168, 176, 0.1)',
+                    tension: 0.3,
+                    borderWidth: 2
+                }, {
+                    label: 'Suma de Número de mes',
+                    data: [600, 400, 380, 350],
+                    borderColor: '#70d070',
+                    backgroundColor: 'rgba(112, 208, 112, 0.1)',
+                    tension: 0.3,
+                    borderWidth: 2,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, position: 'left' },
+                    y1: { beginAtZero: true, position: 'right', grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
